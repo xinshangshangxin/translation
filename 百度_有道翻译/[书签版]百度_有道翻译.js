@@ -3,7 +3,15 @@
         var tempcallback = 'callback_' + new Date().getTime() + '_' + Math.random().toString(36).substr(2);
         var oScript = document.createElement('script');
         oScript.type = 'text/javascript';
-        oScript.src = url + (url.match(/\?/) ? '&' : '?') + 'callback=' + tempcallback;
+
+        if (/\?/.test(url)) {
+            var matchstr = url.match(/(.*?)\?(.*)/);
+            oScript.src = matchstr[1] + '?callback=' + tempcallback + '&' + matchstr[2];
+        }
+        else {
+            oScript.src = url + '?callback=' + tempcallback;
+        }
+
         document.body.appendChild(oScript);
 
         window[tempcallback] = function(json) {

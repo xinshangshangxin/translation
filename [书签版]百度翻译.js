@@ -3,7 +3,15 @@
         var tempcallback = 'callback_' + new Date().getTime() + '_' + Math.random().toString(36).substr(2);
         var oScript = document.createElement('script');
         oScript.type = 'text/javascript';
-        oScript.src = url + (url.match(/\?/) ? '&' : '?') + 'callback=' + tempcallback;
+
+        if (/\?/.test(url)) {
+        	var matchstr = url.match(/(.*?)\?(.*)/);
+        	oScript.src = matchstr[1] + '?callback=' + tempcallback + '&' + matchstr[2];
+        }
+        else {
+        	oScript.src = url + '?callback=' + tempcallback;
+        }
+
         document.body.appendChild(oScript);
 
         window[tempcallback] = function(json) {
@@ -32,7 +40,7 @@
     }
 
     function translateByBaidu(str, fun) {
-        var url = location.protocol + '//openapi.baidu.com/public/2.0/bmt/translate?client_id=lS3jRMk7xm7NmV4bqxAQ4bvZ&q=' + encodeURIComponent(str) + '&from=auto&to=auto';
+        var url = location.protocol + '//openapi.baidu.com/public/2.0/bmt/translate?client_id=lS3jRMk7xm7NmV4bqxAQ4bvZ&from=auto&to=auto&q=' + encodeURIComponent(str);
         jsonpGet(url, function(json) {
             var translatearr = json.trans_result;
             var htmlarr = [];
