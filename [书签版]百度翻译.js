@@ -1,23 +1,33 @@
 (function() {
-    function jsonpGet(url, fun) {
+    function jsonpGet(url, funSuccess, funFail) {
         var tempcallback = 'callback_' + new Date().getTime() + '_' + Math.random().toString(36).substr(2);
         var oScript = document.createElement('script');
         oScript.type = 'text/javascript';
 
         if (/\?/.test(url)) {
-        	var matchstr = url.match(/(.*?)\?(.*)/);
-        	oScript.src = matchstr[1] + '?callback=' + tempcallback + '&' + matchstr[2];
+            var matchstr = url.match(/(.*?)\?(.*)/);
+            oScript.src = matchstr[1] + '?callback=' + tempcallback + '&' + matchstr[2];
         }
         else {
-        	oScript.src = url + '?callback=' + tempcallback;
+            oScript.src = url + '?callback=' + tempcallback;
         }
+
+        oScript.timer = setTimeout(function() {
+            funFail && funFail();
+        }, 10000);
+
+        oScript.onerror = function() {
+        	clearTimeout(oScript.timer);
+            funFail && funFail();
+        };
 
         document.body.appendChild(oScript);
 
         window[tempcallback] = function(json) {
+        	clearTimeout(oScript.timer);
             window[tempcallback] = null;
             document.body.removeChild(oScript);
-            fun && fun(json);
+            funSuccess && funSuccess(json);
         };
     }
 
@@ -25,31 +35,21 @@
         return Object.prototype.toString.call(obj) === '[object Array]';
     }
 
-    function translate(str, translateserver, fun) {
-
-        if (isArray(translateserver)) {
-            for (var i = 0; i < translateserver.length; i++) {
-                if (translateserver[i] == 'bd') {
-                    translateByBaidu(str, fun);
-                }
-                else if (translateserver[i] == 'yd') {
-                    trabslateByYoudao(str, fun);
-                }
-            }
-        }
-    }
-
-    function translateByBaidu(str, fun) {
+    function translateByBaidu(str, fun, funFail) {
         var url = location.protocol + '//openapi.baidu.com/public/2.0/bmt/translate?client_id=lS3jRMk7xm7NmV4bqxAQ4bvZ&from=auto&to=auto&q=' + encodeURIComponent(str);
-        jsonpGet(url, function(json) {
-            var translatearr = json.trans_result;
-            var htmlarr = [];
-            for (var i = 0; i < translatearr.length; i++) {
-                htmlarr.push(translatearr[i].src);
-                htmlarr.push(translatearr[i].dst);
-            }
-            fun && fun('<p>' + htmlarr.join('<br>') + '</p>');
-        });
+        jsonpGet(
+            url,
+            function(json) {
+                var translatearr = json.trans_result;
+                var htmlarr = [];
+                for (var i = 0; i < translatearr.length; i++) {
+                    htmlarr.push(translatearr[i].src);
+                    htmlarr.push(translatearr[i].dst);
+                }
+                fun && fun('<p>' + htmlarr.join('<br>') + '</p>');
+            },
+            funFail
+        );
     }
 
     function showInfo(e) {
@@ -68,9 +68,17 @@
 
             showhtml.innerHTML = '<img src="http://i2.tietuku.com/46a87f3b5a759523.gif" alt="loading">';
 
-            translate(txtSel, ['bd'], function(thtml) {
-                showhtml.innerHTML = thtml;
-            });
+            translateByBaidu(
+                txtSel,
+                function(thtml) {
+                    showhtml.innerHTML = thtml;
+                },
+                function() {
+                    showhtml.innerHTML = '请求失败~~!';
+                }
+            );
+
+
         }
     }
 
