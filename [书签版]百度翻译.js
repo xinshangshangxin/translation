@@ -48,9 +48,7 @@
         e = e || window.event;
         var txtSel = getSelection().toString();
         if (txtSel && showhtml.style.display != 'block') {
-            console.log(1);
             translate(txtSel, ['bd'], function(thtml) {
-                console.log(thtml);
                 showhtml.innerHTML = thtml;
                 var leftx = '';
                 if ((+e.clientX) < (+document.body.clientWidth) / 2) {
@@ -77,8 +75,6 @@
     document.addEventListener('mouseup', showInfo);
     document.addEventListener('mousedown', function(e) {
         e = e || window.event;
-        console.log(e.target.parentNode);
-        console.log(e.target.id !== 'showhtml_id');
         if (e.target.id !== 'showhtml_id' && e.target.parentNode.id !== 'showhtml_id') {
             showhtml.style.cssText = 'display:none;';
         }
