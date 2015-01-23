@@ -48,16 +48,20 @@
         e = e || window.event;
         var txtSel = getSelection().toString();
         if (txtSel && showhtml.style.display != 'block') {
+
+            var leftx = '';
+            if ((+e.clientX) < (+document.body.clientWidth) / 2) {
+                leftx = 'left:' + (window.pageXOffset + 10 + e.clientX) + 'px;';
+            }
+            else {
+                leftx = ('right:' + (window.pageXOffset + 10 + (+document.body.clientWidth) - (+e.clientX))) + 'px;';
+            }
+            showhtml.style.cssText = 'display:block;background:#ccc; color:#000000; position:absolute; top:' + (e.clientY + window.pageYOffset + 10) + 'px;' + leftx + ' padding:10px; z-index:10000; border-radius:2px';
+
+            showhtml.innerHTML = '<img src="http://i2.tietuku.com/46a87f3b5a759523.gif" alt="loading">';
+
             translate(txtSel, ['bd'], function(thtml) {
                 showhtml.innerHTML = thtml;
-                var leftx = '';
-                if ((+e.clientX) < (+document.body.clientWidth) / 2) {
-                    leftx =  'left:' + (window.pageXOffset + 10 +e.clientX) + 'px;';
-                }
-                else {
-                    leftx = ('right:' + (window.pageXOffset + 10 + (+document.body.clientWidth) - (+e.clientX))) + 'px;';
-                }
-                showhtml.style.cssText = 'display:block;background:#ccc; color:#000000; position:absolute; top:' + (e.clientY + window.pageYOffset + 10) + 'px;' + leftx + ' padding:10px; z-index:10000; border-radius:2px';
             });
         }
     }
