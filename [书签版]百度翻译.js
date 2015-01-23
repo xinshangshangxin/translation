@@ -17,14 +17,14 @@
         }, 10000);
 
         oScript.onerror = function() {
-        	clearTimeout(oScript.timer);
+            clearTimeout(oScript.timer);
             funFail && funFail();
         };
 
         document.body.appendChild(oScript);
 
         window[tempcallback] = function(json) {
-        	clearTimeout(oScript.timer);
+            clearTimeout(oScript.timer);
             window[tempcallback] = null;
             document.body.removeChild(oScript);
             funSuccess && funSuccess(json);
@@ -66,7 +66,7 @@
             }
             showhtml.style.cssText = 'display:block;background:#ccc; color:#000000; position:absolute; top:' + (e.clientY + window.pageYOffset + 10) + 'px;' + leftx + ' padding:10px; z-index:10000; border-radius:2px';
 
-            showhtml.innerHTML = '<img src="http://i2.tietuku.com/46a87f3b5a759523.gif" alt="loading">';
+            showhtml.innerHTML = '<div class="translate_spinner"></div>';
 
             translateByBaidu(
                 txtSel,
@@ -77,9 +77,15 @@
                     showhtml.innerHTML = '请求失败~~!';
                 }
             );
-
-
         }
+    }
+
+
+    function addCssLoading() {
+        var oCss = document.createElement('style');
+        oCss.type = 'text/css';
+        oCss.innerHTML = '.translate_spinner { width: 40px; height: 40px; background-color: black; border-radius: 100%; -webkit-animation: scaleout 1.0s infinite ease-in-out; animation: scaleout 1.0s infinite ease-in-out; } @-webkit-keyframes scaleout { 0% { -webkit-transform: scale(0.0) } 100% { -webkit-transform: scale(1.0); opacity: 0; } } @keyframes scaleout { 0% { transform: scale(0.0); -webkit-transform: scale(0.0); } 100% { transform: scale(1.0); -webkit-transform: scale(1.0); opacity: 0; } }';
+        document.head.appendChild(oCss);
     }
 
     if (document.getElementById('showhtml_id')) {
@@ -90,6 +96,7 @@
     showhtml.id = 'showhtml_id';
     showhtml.style.cssText = 'display:none;';
     document.body.appendChild(showhtml);
+    addCssLoading();
 
 
     document.addEventListener('mouseup', showInfo);
