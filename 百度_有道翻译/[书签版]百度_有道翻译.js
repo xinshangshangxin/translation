@@ -1,5 +1,5 @@
 (function() {
-    function jsonpGet(url, fun) {
+    function jsonpGet(url, funSuccess, funFail) {
         var tempcallback = 'callback_' + new Date().getTime() + '_' + Math.random().toString(36).substr(2);
         var oScript = document.createElement('script');
         oScript.type = 'text/javascript';
@@ -12,12 +12,22 @@
             oScript.src = url + '?callback=' + tempcallback;
         }
 
+        oScript.timer = setTimeout(function() {
+            funFail && funFail();
+        }, 10000);
+
+        oScript.onerror = function() {
+            clearTimeout(oScript.timer);
+            funFail && funFail();
+        };
+
         document.body.appendChild(oScript);
 
         window[tempcallback] = function(json) {
+            clearTimeout(oScript.timer);
             window[tempcallback] = null;
             document.body.removeChild(oScript);
-            fun && fun(json);
+            funSuccess && funSuccess(json);
         };
     }
 
