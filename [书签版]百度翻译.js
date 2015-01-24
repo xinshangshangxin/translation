@@ -42,18 +42,22 @@
             url,
             function(json) {
                 var translatearr = json.trans_result;
-                var htmlarr = [];
+                var htmlarrsrc = [];
+                var htmlarrdst = [];
                 for (var i = 0; i < translatearr.length; i++) {
-                    htmlarr.push(translatearr[i].src);
-                    htmlarr.push(translatearr[i].dst);
+                    htmlarrsrc.push(translatearr[i].src);
+                    htmlarrdst.push(translatearr[i].dst);
                 }
-                fun && fun('<p>' + htmlarr.join('<br>') + '</p>');
+                fun && fun(htmlarrsrc, htmlarrdst);
             },
             funFail
         );
     }
 
     function showInfo(e) {
+        if (isstop) {
+            return;
+        }
         e = e || window.event;
         var txtSel = getSelection().toString();
         if (txtSel && showhtml.style.display != 'block') {
@@ -71,8 +75,10 @@
 
             translateByBaidu(
                 txtSel,
-                function(thtml) {
-                    showhtml.innerHTML = thtml;
+                function(htmlarrsrc, htmlarrdst) {
+                    for (var i = 0; i < htmlarrsrc.length; i++) {
+                        showhtml.innerHTML = '<div style="display:none; font-size:0.4em; color:#575757">' + htmlarrsrc.join('<br>') + '</div>' + '<div>' + htmlarrdst.join('<br>') + '</div>';
+                    }
                 },
                 function() {
                     showhtml.innerHTML = '请求失败~~!';
@@ -90,22 +96,44 @@
     }
 
 
-    if (window.location.href.match(/github.com/)) {
-        var r = window.open("", "", "");
-        r.opener = null;
-        r.document.write(document.documentElement.innerHTML.replace(/(<head.*?>)/, '$1<script type="text/javascript" src="https://xinshangshangxin.com/source/bdtranslate.js"></script>'));
-        r.document.close();
-        return;
-    }
+    // if (window.location.href.match(/github.com/)) {
+    //     var r = window.open("", "", "");
+    //     r.opener = null;
+    //     r.document.write(document.documentElement.innerHTML.replace(/(<\/head.*?>)/, '<script type="text/javascript" src="https://xinshangshangxin.com/source/bdtranslate.js"></script>$1'));
+    //     r.document.close();
+    //     return;
+    // }
+
+    
     if (document.getElementById('showhtml_id')) {
         return;
     }
 
+    var isstop = false;
+
     var showhtml = document.createElement('div');
     showhtml.id = 'showhtml_id';
     showhtml.style.cssText = 'display:none;';
+    showhtml.isshow = 0;
     document.body.appendChild(showhtml);
     addCssLoading();
+
+    document.addEventListener('keydown', function(e) {
+        e = e || window.event;
+        if (e.keyCode === 17 && showhtml.innerHTML) {
+            showhtml.isshow = !showhtml.isshow;
+            if (showhtml.isshow) {
+                showhtml.innerHTML = showhtml.innerHTML.replace('display:none', 'display:block');
+            }
+            else {
+                showhtml.innerHTML = showhtml.innerHTML.replace('display:block', 'display:none');
+            }
+        }
+        else if (e.keyCode == 13 && e.ctrlKey) {
+            isstop = !isstop;
+            showhtml.innerHTML = 'stop translation!!';
+        }
+    });
 
 
     document.addEventListener('mouseup', showInfo);
