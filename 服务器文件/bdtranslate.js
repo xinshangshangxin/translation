@@ -90,32 +90,29 @@
     }
 
 
-    if (window.location.href.match(/github.com/)) {
-        var r = window.open("", "", "");
-        r.opener = null;
-        r.document.write(document.documentElement.innerHTML.replace(/(<head.*?>)/, '$1<script type="text/javascript" src="https://xinshangshangxin.com/source/bdtranslate.js"></script>'));
-        r.document.close();
-        return;
-    }
-    if (document.getElementById('showhtml_id')) {
-        return;
-    }
+    var showhtml;
 
-    var showhtml = document.createElement('div');
-    showhtml.id = 'showhtml_id';
-    showhtml.style.cssText = 'display:none;';
-    document.body.appendChild(showhtml);
-    addCssLoading();
-
-
-    document.addEventListener('mouseup', showInfo);
-    document.addEventListener('mousedown', function(e) {
-        e = e || window.event;
-        if (e.target.id !== 'showhtml_id' && e.target.parentNode.id !== 'showhtml_id') {
-            showhtml.style.cssText = 'display:none;';
+    window.onload = function() {
+        if (document.getElementById('showhtml_id')) {
+            return;
         }
-        else {
-            e.stopPropagation();
-        }
-    });
+
+        showhtml = document.createElement('div');
+        showhtml.id = 'showhtml_id';
+        showhtml.style.cssText = 'display:none;';
+        document.body.appendChild(showhtml);
+        addCssLoading();
+
+
+        document.addEventListener('mouseup', showInfo);
+        document.addEventListener('mousedown', function(e) {
+            e = e || window.event;
+            if (e.target.id !== 'showhtml_id' && e.target.parentNode.id !== 'showhtml_id') {
+                showhtml.style.cssText = 'display:none;';
+            }
+            else {
+                e.stopPropagation();
+            }
+        });
+    };
 })();
