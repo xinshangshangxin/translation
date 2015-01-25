@@ -96,15 +96,15 @@
     }
 
 
-    // if (window.location.href.match(/github.com/)) {
-    //     var r = window.open("", "", "");
-    //     r.opener = null;
-    //     r.document.write(document.documentElement.innerHTML.replace(/(<\/head.*?>)/, '<script type="text/javascript" src="https://xinshangshangxin.com/source/bdtranslate.js"></script>$1'));
-    //     r.document.close();
-    //     return;
-    // }
+    if (window.location.href.match(/github.com/)) {
+        var r = window.open("", "", "");
+        r.opener = null;
+        r.document.write(document.documentElement.innerHTML.replace(/(<\/head.*?>)/, '<script type="text/javascript" src="https://xinshangshangxin.chinacloudsites.cn/source/bdtranslate.js"></script>$1'));
+        r.document.close();
+        return;
+    }
 
-    
+
     if (document.getElementById('showhtml_id')) {
         return;
     }
