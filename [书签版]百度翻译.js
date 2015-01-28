@@ -55,36 +55,40 @@
     }
 
     function showInfo(e) {
-        if (isstop) {
+        if (showhtml.isstop || e.target.id === 'showhtml_id' || e.target.parentNode && e.target.parentNode.id === 'showhtml_id') {
             return;
         }
         e = e || window.event;
-        var txtSel = getSelection().toString();
-        if (txtSel && showhtml.style.display != 'block') {
 
-            var leftx = '';
-            if ((+e.clientX) < (+document.body.clientWidth) / 2) {
-                leftx = 'left:' + (window.pageXOffset + 10 + e.clientX) + 'px;';
-            }
-            else {
-                leftx = ('right:' + (window.pageXOffset + 10 + (+document.body.clientWidth) - (+e.clientX))) + 'px;';
-            }
-            showhtml.style.cssText = 'display:block;background:#ccc; color:#000000; position:absolute; top:' + (e.clientY + window.pageYOffset + 10) + 'px;' + leftx + ' padding:10px; z-index:10000; border-radius:2px';
-
-            showhtml.innerHTML = '<div class="translate_spinner"></div>';
-
-            translateByBaidu(
-                txtSel,
-                function(htmlarrsrc, htmlarrdst) {
-                    for (var i = 0; i < htmlarrsrc.length; i++) {
-                        showhtml.innerHTML = '<div style="display:none; font-size:0.4em; color:#575757">' + htmlarrsrc.join('<br>') + '</div>' + '<div>' + htmlarrdst.join('<br>') + '</div>';
-                    }
-                },
-                function() {
-                    showhtml.innerHTML = '请求失败~~!';
+        setTimeout(function() {
+            var txtSel = getSelection().toString();
+            if (txtSel) {
+                var leftx = '';
+                if ((+e.clientX) < (+document.body.clientWidth) / 2) {
+                    leftx = 'left:' + (window.pageXOffset + 10 + e.clientX) + 'px;';
                 }
-            );
-        }
+                else {
+                    leftx = ('right:' + (window.pageXOffset + 10 + (+document.body.clientWidth) - (+e.clientX))) + 'px;';
+                }
+                showhtml.style.cssText = 'display:block;background:#ccc; color:#000000; position:absolute; top:' + (e.clientY + window.pageYOffset + 10) + 'px;' + leftx + ' padding:15px; z-index:10000; border-radius:2px';
+                showhtml.innerHTML = '<div class="translate_spinner"></div>';
+
+                translateByBaidu(
+                    txtSel,
+                    function(htmlarrsrc, htmlarrdst) {
+                        var tempstr = '';
+                        for (var i = 0; i < htmlarrsrc.length; i++) {
+                            tempstr += '<span style="display:none; font-size:0.4em; color:#575757">' + htmlarrsrc[i] + '</span>' + '<span>' + htmlarrdst[i] + '</span>';
+                        }
+                        showhtml.style.width = 'auto';
+                        showhtml.innerHTML = tempstr;
+                    },
+                    function() {
+                        showhtml.innerHTML = '请求失败~~!';
+                    }
+                );
+            }
+        }, 20);
     }
 
 
@@ -109,12 +113,76 @@
         return;
     }
 
-    var isstop = false;
+
+    var savedTarget = null;
+    var orgCursor = null;
+    var dragOK = false;
+    var dragXoffset = 0;
+    var dragYoffset = 0;
+    var width = 0,
+        height = 0;
+
+    function moveHandler(e) {
+        if (e === null) {
+            return;
+        }
+        if (e.button <= 1 && dragOK) {
+
+            var leftpos = e.clientX - dragXoffset;
+            var toppos = e.clientY - dragYoffset;
+
+            if (leftpos + width + 35>= document.body.clientWidth) {
+                leftpos = document.body.clientWidth - width - 35;
+            }
+            else if (leftpos <= 0) {
+                leftpos = 0;
+            }
+
+            savedTarget.style.left = leftpos + 'px';
+            savedTarget.style.top = toppos + 'px';
+            return false;
+        }
+    }
+
+    function dragCleanup(e) {
+        document.removeEventListener('mousemove', moveHandler, false);
+        document.removeEventListener('mouseup', dragCleanup, false);
+        savedTarget.style.cursor = orgCursor;
+
+        dragOK = false;
+    }
+
+    function dragHandler(e) {
+        if (e === null) {
+            return;
+        }
+        var target = e.target;
+        var htype = 'move';
+
+        orgCursor = target.style.cursor;
+
+        if (e.target.id === 'showhtml_id') {
+            savedTarget = target;
+            target.style.cursor = htype;
+            dragOK = true;
+            dragXoffset = e.clientX - target.offsetLeft;
+            dragYoffset = e.clientY - target.offsetTop;
+
+            width = parseFloat(getComputedStyle(target).width);
+            target.style.width = width + 'px';
+
+            document.addEventListener('mousemove', moveHandler, false);
+            document.addEventListener('mouseup', dragCleanup, false);
+            return false;
+        }
+    }
 
     var showhtml = document.createElement('div');
     showhtml.id = 'showhtml_id';
     showhtml.style.cssText = 'display:none;';
-    showhtml.isshow = 0;
+    showhtml.isshow = false;
+    showhtml.isstop = false;
+    showhtml.addEventListener('mousedown', dragHandler, false);
     document.body.appendChild(showhtml);
     addCssLoading();
 
@@ -123,15 +191,20 @@
         if (e.keyCode === 17 && showhtml.innerHTML) {
             showhtml.isshow = !showhtml.isshow;
             if (showhtml.isshow) {
-                showhtml.innerHTML = showhtml.innerHTML.replace('display:none', 'display:block');
+                showhtml.innerHTML = showhtml.innerHTML.replace(/display:none/gi, 'display:block');
             }
             else {
-                showhtml.innerHTML = showhtml.innerHTML.replace('display:block', 'display:none');
+                showhtml.innerHTML = showhtml.innerHTML.replace(/display:block/gi, 'display:none');
             }
         }
         else if (e.keyCode == 13 && e.ctrlKey) {
-            isstop = !isstop;
-            showhtml.innerHTML = 'stop translation!!';
+            showhtml.isstop = !showhtml.isstop;
+            if (showhtml.isstop) {
+                showhtml.innerHTML = 'stop translation!!';
+            }
+            else {
+                showhtml.innerHTML = 'start translation!!';
+            }
         }
     });
 
@@ -139,11 +212,12 @@
     document.addEventListener('mouseup', showInfo);
     document.addEventListener('mousedown', function(e) {
         e = e || window.event;
-        if (e.target.id !== 'showhtml_id' && e.target.parentNode.id !== 'showhtml_id') {
+        if (e.target.id !== 'showhtml_id' && e.target.parentNode && e.target.parentNode.id !== 'showhtml_id') {
             showhtml.style.cssText = 'display:none;';
         }
         else {
             e.stopPropagation();
         }
     });
+
 })();
