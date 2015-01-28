@@ -37,7 +37,7 @@
 
     function translateByBaidu(str, fun, funFail) {
         var protocol = location.protocol;
-        var url = protocol.match('file') ? 'http:' : protocol + '//openapi.baidu.com/public/2.0/bmt/translate?client_id=lS3jRMk7xm7NmV4bqxAQ4bvZ&from=auto&to=auto&q=' + encodeURIComponent(str);
+        var url = (protocol.match('file') ? 'http:' : protocol) + '//openapi.baidu.com/public/2.0/bmt/translate?client_id=lS3jRMk7xm7NmV4bqxAQ4bvZ&from=auto&to=auto&q=' + encodeURIComponent(str);
         jsonpGet(
             url,
             function(json) {
