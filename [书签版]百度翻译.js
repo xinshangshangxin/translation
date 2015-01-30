@@ -63,6 +63,7 @@
         setTimeout(function() {
             var txtSel = getSelection().toString();
             if (txtSel) {
+                showhtml.isshow = false;
                 var leftx = '';
                 if ((+e.clientX) < (+document.body.clientWidth) / 2) {
                     leftx = 'left:' + (window.pageXOffset + 10 + e.clientX) + 'px;';
@@ -131,7 +132,7 @@
             var leftpos = e.clientX - dragXoffset;
             var toppos = e.clientY - dragYoffset;
 
-            if (leftpos + width + 35>= document.body.clientWidth) {
+            if (leftpos + width + 35 >= document.body.clientWidth) {
                 leftpos = document.body.clientWidth - width - 35;
             }
             else if (leftpos <= 0) {

@@ -63,6 +63,7 @@
         setTimeout(function() {
             var txtSel = getSelection().toString();
             if (txtSel) {
+                showhtml.isshow = false;
                 var leftx = '';
                 if ((+e.clientX) < (+document.body.clientWidth) / 2) {
                     leftx = 'left:' + (window.pageXOffset + 10 + e.clientX) + 'px;';
