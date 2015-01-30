@@ -1,0 +1,76 @@
+<html>
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>TEST</title>
+</head>
+
+<body>
+    <script type="text/javascript">
+        //获取跨域数据  
+        window.onmessage = function(e) {
+            var protocol = e.origin.match(/http.*(?=\/\/)/);
+            ajaxPost(
+                (protocol && protocol[0].match('file') ? 'http:' : protocol[0]) + '//xinshangshangxin.chinacloudsites.cn/getbyurltest',
+                'url=' + encodeURIComponent('http://fanyi.youdao.com/translate') + '&data=' + encodeURIComponent(JSON.stringify({
+                    doctype: 'json',
+                    i: e.data,
+                    ue: 'UTF-8',
+                    'type': 'AUTO'
+                })),
+                function(res) {
+                    var parentwin = window.parent;
+                    parentwin.postMessage(res, e.origin); //跨域发送数据  
+                },
+                function(err) {
+                    var parentwin = window.parent;
+                    parentwin.postMessage(err, e.origin); //跨域发送数据  
+                }
+            );
+        };
+
+
+        function ajaxPost(url, data, funScuss, funFail) {
+            // 1, 创建 XMLHttpRequest
+            var xhr;
+            if (window.XMLHttpRequest) { //IE7+, Firefox, Chrome, Opera, Safari
+                xhr = new XMLHttpRequest();
+            }
+            else { //IE6, IE5
+                xhr = new ActiveXObject('Microsoft.XMLHTTP');
+            }
+
+            // url += url.match(/\?/) ? '&' : '?' + 'time=' + new Date().getTime(); // 防止缓存
+
+            // 设置超时取消
+            var timer = setTimeout(function() {
+                xhr.abort();
+                funFail && funFail('timeout');
+            }, 20 * 1000);
+
+            //2 连接服务器
+            xhr.open('POST', url, true);
+            xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+            // 3, 发送请求
+            xhr.send(data);
+
+            // 4, 接收服务器的返回
+            xhr.onreadystatechange = function() {
+                // 完成返回
+                if (xhr.readyState == 4) {
+
+                    clearTimeout(timer);
+                    // 成功接收数据
+                    if (xhr.status == 200) {
+                        funScuss && funScuss(xhr.responseText);
+                    }
+                    else {
+                        funFail && funFail(xhr.status);
+                    }
+                }
+            };
+        }
+    </script>
+</body>
+
+</html>
